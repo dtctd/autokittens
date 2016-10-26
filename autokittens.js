@@ -404,23 +404,23 @@ fillTable = function () {
   gamePage.resPool.resources.forEach(function (r) {
     var res = {};
     res.name = r.name, res.title = r.title || r.name;
-    res.perTickUI = r.perTickUI;
+    res.perTickCached = r.perTickCached;
     res.value = r.value;
     res.maxValue = r.maxValue;
-    if (r.perTickUI !== 0) {
+    if (r.perTickCached !== 0) {
       if (r.maxValue > 0) {
         if (r.value <= 0) {
           res.time = 0;
         } else if (r.value >= r.maxValue) {
           res.time = 0;
-        } else if (r.perTickUI > 0) {
-          res.time = (r.maxValue - r.value)/(r.perTickUI * tickRate);
-        } else if (r.perTickUI < 0) {
-          res.time = -r.value/(r.perTickUI * tickRate);
+        } else if (r.perTickCached > 0) {
+          res.time = (r.maxValue - r.value)/(r.perTickCached * tickRate);
+        } else if (r.perTickCached < 0) {
+          res.time = -r.value/(r.perTickCached * tickRate);
         }
       }
-      else if (r.value > 0 && r.perTickUI < 0) {
-        res.time = -r.value/(r.perTickUI * tickRate);
+      else if (r.value > 0 && r.perTickCached < 0) {
+        res.time = -r.value/(r.perTickCached * tickRate);
       };
     }
     resources.push(res)
@@ -433,20 +433,20 @@ fillTable = function () {
   for (var i = 0; i < resources.length; i++) {
     r = resources[i];
     var name = r.name, title = r.title;
-    if (r.perTickUI !== 0) {
+    if (r.perTickCached !== 0) {
       if (r.maxValue > 0) {
         if (r.value <= 0) {
           contents += formatTableRow(name, title, 'Empty');
         } else if (r.value >= r.maxValue) {
           contents += formatTableRow(name, title, 'Full');
-        } else if (r.perTickUI > 0) {
-          contents += formatTableRow(name, title, "Full: "+gamePage.toDisplaySeconds((r.maxValue - r.value)/(r.perTickUI * tickRate)));
-        } else if (r.perTickUI < 0) {
-          contents += formatTableRow(name, title, "Left: "+gamePage.toDisplaySeconds(-r.value/(r.perTickUI * tickRate)));
+        } else if (r.perTickCached > 0) {
+          contents += formatTableRow(name, title, "Full: "+gamePage.toDisplaySeconds((r.maxValue - r.value)/(r.perTickCached * tickRate)));
+        } else if (r.perTickCached < 0) {
+          contents += formatTableRow(name, title, "Left: "+gamePage.toDisplaySeconds(-r.value/(r.perTickCached * tickRate)));
         }
       }
-      else if (r.value > 0 && r.perTickUI < 0) {
-        contents += formatTableRow(name, title, "Left: "+gamePage.toDisplaySeconds(-r.value/(r.perTickUI * tickRate)));
+      else if (r.value > 0 && r.perTickCached < 0) {
+        contents += formatTableRow(name, title, "Left: "+gamePage.toDisplaySeconds(-r.value/(r.perTickCached * tickRate)));
       };
     }
 
@@ -543,7 +543,7 @@ calculateCraftAmounts = function() {
     var amount = 1;
     for (var j = 0; j < prices.length; j++) {
       var res = gamePage.resPool.get(prices[j].name);
-      var checkVal = Math.min(res.perTickUI, res.maxValue != 0 ? res.maxValue : res.perTickUI);
+      var checkVal = Math.min(res.perTickCached, res.maxValue != 0 ? res.maxValue : res.perTickCachedI);
       if (checkVal > prices[j].val) amount = Math.max(amount, Math.floor(checkVal/prices[j].val))
     }
     autoOptions.craftOptions[resources[i]+'Amount'] = amount
@@ -1026,7 +1026,7 @@ function mintCalculator() {
   }
 
   var catpower = gamePage.resPool.get("manpower");
-  var catpowerRate = catpower.perTickUI * 5;
+  var catpowerRate = catpower.perTickCached * 5;
   var huntTime = 100/catpowerRate;
   var huntTimeWithMint = 100/(catpowerRate-3.75);
   var fpsNormal = expectedFurs/huntTime;
