@@ -162,10 +162,16 @@ function rebuildOptionsUI() {
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'slabAmount', 'Craft', 'slab(s) at a time');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftSteel', 'Automatically convert coal to steel');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'steelAmount', 'Craft', 'steel at a time');
+  addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftGear', 'Automatically convert steel to gear');
+  addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'gearAmount', 'Craft', 'gear at a time');
+  addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'gearSteelRatio', 'Keep', ' gear to steel ratio')
+  addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftConcrete', 'Automatically convert steel to concrete');
+  addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'concreteSteelRatio', 'Keep', ' concrete to steel ratio');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftPlate', 'Automatically convert iron to plates');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'plateAmount', 'Craft', 'plate(s) at a time');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftAlloy', 'Automatically convert titanium to alloy');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'alloyAmount', 'Craft', 'alloy at a time');
+  addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'alloySteelRatio', 'Keep', ' steel to alloy ratio');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftEludium', 'Automatically convert unobtainium to eludium');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'eludiumAmount', 'Craft', 'eludium at a time');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftKerosene', 'Automatically convert oil to kerosene');
@@ -251,38 +257,45 @@ function rawSecondsFormat(secondsRaw) {
 var defaultOptions = {
   warnOnLeave: true,
   autoStar: true,
-  autoCraft: false,
-  autoHunt: false,
-  autoPray: false,
-  autoTrade: false,
-  autoFestival: false,
+  autoCraft: true,
+  autoHunt: true,
+  autoPray: true,
+  autoTrade: true,
+  autoFestival: true,
   craftOptions: {
     craftLimit: 0.99,
-    craftWood: false,
+    craftWood: true,
     woodAmount: 10,
-    craftBeam: false,
+    craftBeam: true,
     beamAmount: 1,
-    craftSlab: false,
+    craftSlab: true,
     slabAmount: 1,
-    craftSteel: false,
+    craftSteel: true,
     steelAmount: 1,
-    craftPlate: false,
+	craftGear: true,
+	gearAmount: 1,
+	gearSteelRatio: 1,
+	craftConcrete: true,
+	concreteSteelRatio: 1,
+    craftPlate: true,
     plateAmount: 1,
-    craftAlloy: false,
+    craftAlloy: true,
     alloyAmount: 1,
-    craftEludium: false,
+	alloySteelRatio: 1,
+    craftEludium: true,
     eludiumAmount: 1,
-    craftKerosene: false,
+
+    craftKerosene: true,
     keroseneAmount: 1,
-    craftParchment: false,
+    craftParchment: true,
     parchmentAmount: 1,
-    craftManuscript: false,
+    craftManuscript: true,
     manuscriptAmount: 1,
     minParchmentAmount: 0,
-    craftCompendium: false,
+    craftCompendium: true,
     compediumAmount: 1,
     minManuscriptAmount: 0,
-    craftBlueprint: false,
+    craftBlueprint: true,
     blueprintAmount: 1,
     minCompendiumAmount: 0,
     blueprintPriority: false
@@ -404,6 +417,7 @@ fillTable = function () {
   gamePage.resPool.resources.forEach(function (r) {
     var res = {};
     res.name = r.name, res.title = r.title || r.name;
+
     res.perTickCached = r.perTickCached;
     res.value = r.value;
     res.maxValue = r.maxValue;
@@ -536,7 +550,7 @@ tryCraft = function(craftName, amount) {
 }
 
 calculateCraftAmounts = function() {
-  var resources = ["wood", "beam", "slab", "steel", "plate", "alloy", "eludium", "kerosene", "parchment", "manuscript", "blueprint", "compedium"]
+  var resources = ["wood", "beam", "slab", "steel", "plate", "alloy", "gear", "concrate", "eludium", "kerosene", "parchment", "manuscript", "blueprint", "compedium"]
   for (var i = 0; i < resources.length; i++) {
     var craft = gamePage.workshop.getCraft(resources[i]);
     var prices = craft.prices;
@@ -561,8 +575,10 @@ autoCraft = function () {
     ["minerals",    "slab" , "craftSlab", gamePage.science.get('construction').researched],
     ["coal",        "steel", "craftSteel", gamePage.science.get('construction').researched],
     ["iron",        "plate", "craftPlate", gamePage.science.get('construction').researched],
-    ["titanium",    "alloy", "craftAlloy", gamePage.science.get('construction').researched],
-    ["unobtainium", "eludium", "craftEludium", gamePage.science.get('construction').researched],
+    ["titanium",    "alloy", "craftAlloy", gamePage.science.get('construction').researched && (gamePage.resPool.get('steel').value > (gamePage.resPool.get('alloy').value * autoOptions.craftOptions.alloySteelRatio))],
+    ["steel",    	"gear", "craftGear", gamePage.science.get('construction').researched && (gamePage.resPool.get('steel').value > (gamePage.resPool.get('gear').value * autoOptions.craftOptions.gearSteelRatio))],
+    ["slab",    	"concrate", "craftConcrete", gamePage.science.get('construction').researched && (gamePage.resPool.get('steel').value > (gamePage.resPool.get('concrate').value * autoOptions.craftOptions.concreteSteelRatio))],
+	["unobtainium", "eludium", "craftEludium", gamePage.science.get('construction').researched],
     ["oil", "kerosene", "craftKerosene", gamePage.science.get('oilProcessing').researched],
     ["culture", "parchment", "craftParchment", gamePage.science.get('construction').researched],
     ["culture", "manuscript", "craftManuscript", gamePage.science.get('construction').researched && (gamePage.resPool.get('parchment').value > autoOptions.craftOptions.minParchmentAmount + 25 * autoOptions.craftOptions.manuscriptAmount)],
@@ -572,7 +588,15 @@ autoCraft = function () {
   ];
   for (var i = 0; i < resources.length; i++) {
     var curRes = gamePage.resPool.get(resources[i][0]);
-    if (curRes.maxValue == 0)
+	// added check for gear
+    if (resources[i][3] && autoOptions.craftOptions[resources[i][2]] && gamePage.workshop.getCraft(resources[i][1]).unlocked && resources[i][1] == "gear") {
+      tryCraft(resources[i][1], autoOptions.craftOptions[resources[i][1]+'Amount']);
+    }
+	if (resources[i][3] && autoOptions.craftOptions[resources[i][2]] && gamePage.workshop.getCraft(resources[i][1]).unlocked && resources[i][1] == "concrate") {
+      //tryCraft(resources[i][1], autoOptions.craftOptions[resources[i][1]+'Amount']);
+	  gamePage.craft("concrate", 1);
+	}
+	if (curRes.maxValue == 0)
       continue;
     if (resources[i][3] && autoOptions.craftOptions[resources[i][2]] && curRes.value / curRes.maxValue >= autoOptions.craftOptions.craftLimit && gamePage.workshop.getCraft(resources[i][1]).unlocked) {
       tryCraft(resources[i][1], autoOptions.craftOptions[resources[i][1]+'Amount']);
@@ -831,11 +855,11 @@ function calculateBaseUps(extras) {
   var citadels = gamePage.religion.getZU('ivoryCitadel').val + (extras[3] || 0);
   var palaces = gamePage.religion.getZU('skyPalace').val + (extras[4] || 0);
   var utopias = gamePage.religion.getZU('unicornUtopia').val + (extras[5] || 0);
-  var tombEffect = gamePage.religion.getZU('unicornTomb').effects['unicornsRatio'];
-  var towerEffect = gamePage.religion.getZU('ivoryTower').effects['unicornsRatio'];
-  var citadelEffect = gamePage.religion.getZU('ivoryCitadel').effects['unicornsRatio'];
-  var palaceEffect = gamePage.religion.getZU('skyPalace').effects['unicornsRatio'];
-  var utopiaEffect = gamePage.religion.getZU('unicornUtopia').effects['unicornsRatio'];
+  var tombEffect = gamePage.religion.getZU('unicornTomb').effects['unicornsRatioReligion'];
+  var towerEffect = gamePage.religion.getZU('ivoryTower').effects['unicornsRatioReligion'];
+  var citadelEffect = gamePage.religion.getZU('ivoryCitadel').effects['unicornsRatioReligion'];
+  var palaceEffect = gamePage.religion.getZU('skyPalace').effects['unicornsRatioReligion'];
+  var utopiaEffect = gamePage.religion.getZU('unicornUtopia').effects['unicornsRatioReligion'];
   var bldEffect = 1 + tombEffect * tombs + towerEffect * towers + citadelEffect * citadels + palaceEffect * palaces + utopiaEffect * utopias;
 
   var faithEffect = 1;
@@ -844,7 +868,7 @@ function calculateBaseUps(extras) {
   }
 
   var paragonRatio = gamePage.resPool.get("paragon").value * 0.01;
-	paragonRatio = 1 + gamePage.bld.getHyperbolicEffect(paragonRatio, 2);
+	paragonRatio = 1 + gamePage.bld.game.getHyperbolicEffect(paragonRatio, 2);
 
   return baseUps * bldEffect * faithEffect * paragonRatio;
 }
@@ -907,10 +931,10 @@ function buildingCalculator() {
   if (gamePage.spaceTab.visible) {
     result += '</optgroup><optgroup label="Space">';
     var space = gamePage.space.programs.slice(0);
-    space.sort(function(a, b){return a.title.localeCompare(b.title)});
+    space.sort(function(a, b){return a.label.localeCompare(b.label)});
     for (var i = 0; i < space.length; i++) {
       if (space[i].unlocked && space[i].upgradable) {
-        result += '<option value="space_'+space[i].name+'">'+space[i].title+'</option>';
+        result += '<option value="space_'+space[i].name+'">'+space[i].label+'</option>';
       }
     }
   }
@@ -958,7 +982,7 @@ function calculateBuildingPrice() {
     if (bldName[0] == 'space' && (prices[i].name == "oil" || prices[i].name == "rocket")) {
       var reductionRatio = 0;
       if (prices[i].name == "oil")
-				reductionRatio = gamePage.bld.getHyperbolicEffect(gamePage.space.getEffect("oilReductionRatio"), 0.75);
+				reductionRatio = gamePage.bld.game.getHyperbolicEffect(gamePage.space.getEffect("oilReductionRatio"), 0.75);
       if (res.maxValue > prices[i].val * (1 - reductionRatio))
         resLimit = maxNum;
       else
@@ -984,7 +1008,7 @@ function calculateBuildingPrice() {
       {
         var reductionRatio = 0;
         if (prices[i].name == "oil")
-          reductionRatio = gamePage.bld.getHyperbolicEffect(gamePage.space.getEffect("oilReductionRatio"), 0.75);
+          reductionRatio = gamePage.bld.game.getHyperbolicEffect(gamePage.space.getEffect("oilReductionRatio"), 0.75);
         finalPrice = prices[i].val * (1-reductionRatio);
       }
       else
@@ -1000,7 +1024,7 @@ function calculateBuildingPrice() {
         if (bldName[0] == 'space' && (prices[i].name == "oil" || prices[i].name == "rocket")) {
           var reductionRatio = 0;
           if (prices[i].name == "oil")
-            reductionRatio = gamePage.bld.getHyperbolicEffect(gamePage.space.getEffect("oilReductionRatio"), 0.75);
+            reductionRatio = gamePage.bld.game.getHyperbolicEffect(gamePage.space.getEffect("oilReductionRatio"), 0.75);
           price = prices[i].val  * (1-reductionRatio) * (number - bld.val);
         }
         else for (var j = bld.val; j < number; j++) {
@@ -1018,7 +1042,7 @@ function calculateBuildingPrice() {
 // Mint/hunter efficiency calculator
 
 function mintCalculator() {
-  var hunterRatio = gamePage.workshop.getEffect("hunterRatio");
+  var hunterRatio = gamePage.workshop.game.getEffect("hunterRatio");
   var expectedFurs = 32.5 * (hunterRatio + 1);
   var expectedIvory = 20 * (hunterRatio + 1);
   if (2 * hunterRatio < 55) {
@@ -1034,16 +1058,24 @@ function mintCalculator() {
   var fpsWithMint = expectedFurs/huntTimeWithMint;
   var ipsWithMint = expectedIvory/huntTimeWithMint;
 
-	var cpratio = (catpower.maxValue * gamePage.bld.get("mint").effects["mintEffect"]) / 100;
+  //var cpratio = (catpower.maxValue * gamePage.bld.get("mint").effects["mintEffect"]) / 100;
 
-	var fpsFromMint = cpratio * 1.25 * 5;
-	var ipsFromMint = cpratio * 0.3 * 5;
+  var fpsFromMint = 1.25 * 5;
+  var ipsFromMint = 0.3 * 5;
 
   var mintsRunning = gamePage.bld.get('mint').on;
-  fpsNormal += fpsFromMint * mintsRunning;
-  ipsNormal += ipsFromMint * mintsRunning;
-  fpsWithMint += fpsFromMint * mintsRunning;
-  ipsWithMint += ipsFromMint * mintsRunning;
+  if(fpsFromMint){
+	fpsNormal += fpsFromMint * mintsRunning;
+  }
+  if(ipsFromMint){
+	ipsNormal += ipsFromMint * mintsRunning;
+  }
+  if(fpsFromMint){
+	fpsWithMint += fpsFromMint * mintsRunning;
+  }
+  if(ipsFromMint){
+	ipsWithMint += ipsFromMint * mintsRunning;
+  }
 
   var result = "";
 
