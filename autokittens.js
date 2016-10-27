@@ -176,6 +176,8 @@ function rebuildOptionsUI() {
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'eludiumAmount', 'Craft', 'eludium at a time');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftKerosene', 'Automatically convert oil to kerosene');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'keroseneAmount', 'Craft', 'kerosene at a time');
+  addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftThorium', 'Automatically convert uranium to thorium');
+  addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'thoriumAmount', 'Craft', 'thorium at a time');
 
   addHeading(uiContainer, 'Fur product crafting');
   addTriggerOptionMenu(uiContainer, 'autoOptions.furOptions', 'parchmentMode', 'Auto-craft parchment', [['never', 0], ['all, before hunting', 1], ['on full culture storage', 2], ['both', 3]], '', 'changeFurCrafts()');
@@ -284,9 +286,10 @@ var defaultOptions = {
 	alloySteelRatio: 1,
     craftEludium: true,
     eludiumAmount: 1,
-
     craftKerosene: true,
     keroseneAmount: 1,
+	craftThorium: true,
+	thoriumAmount: 1,
     craftParchment: true,
     parchmentAmount: 1,
     craftManuscript: true,
@@ -550,7 +553,7 @@ tryCraft = function(craftName, amount) {
 }
 
 calculateCraftAmounts = function() {
-  var resources = ["wood", "beam", "slab", "steel", "plate", "alloy", "gear", "concrate", "eludium", "kerosene", "parchment", "manuscript", "blueprint", "compedium"]
+  var resources = ["wood", "beam", "slab", "steel", "plate", "alloy", "gear", "concrate", "uranium", "eludium", "kerosene", "parchment", "manuscript", "blueprint", "compedium"]
   for (var i = 0; i < resources.length; i++) {
     var craft = gamePage.workshop.getCraft(resources[i]);
     var prices = craft.prices;
@@ -580,6 +583,7 @@ autoCraft = function () {
     ["slab",    	"concrate", "craftConcrete", gamePage.science.get('construction').researched && (gamePage.resPool.get('steel').value > (gamePage.resPool.get('concrate').value * autoOptions.craftOptions.concreteSteelRatio))],
 	["unobtainium", "eludium", "craftEludium", gamePage.science.get('construction').researched],
     ["oil", "kerosene", "craftKerosene", gamePage.science.get('oilProcessing').researched],
+	["uranium", "thorium", "craftThorium", gamePage.science.get('thorium').researched],
     ["culture", "parchment", "craftParchment", gamePage.science.get('construction').researched],
     ["culture", "manuscript", "craftManuscript", gamePage.science.get('construction').researched && (gamePage.resPool.get('parchment').value > autoOptions.craftOptions.minParchmentAmount + 25 * autoOptions.craftOptions.manuscriptAmount)],
     ["science", "blueprint", "craftBlueprint", gamePage.science.get('construction').researched && autoOptions.craftOptions.blueprintPriority && (gamePage.resPool.get('compedium').value > autoOptions.craftOptions.minCompendiumAmount + 25 * autoOptions.craftOptions.blueprintAmount)],
