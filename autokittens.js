@@ -1,5 +1,3 @@
-var origTab = gamePage.ui.activeTabId;
-
 function buildUI() {
   var tableContainer = document.createElement('div');
   tableContainer.id = 'timerTableContainer';
@@ -129,9 +127,9 @@ function rebuildOptionsUI() {
   addCheckbox(uiContainer, 'autoOptions', 'autoPray', 'Praise the sun when faith is near limit');
   addIndent(uiContainer);addOptionMenu(uiContainer, 'autoOptions', 'prayLimit', 'Pray when faith is', faithPercentages, 'full');
   addCheckbox(uiContainer, 'autoOptions', 'autoTrade', 'Trade when gold is near limit');
-  addTriggerOptionMenu(uiContainer, 'autoOptions', 'timeDisplay', 'Format for time displays', [["default", "standard"], ["short", "short"], ["seconds", "seconds"]], '', 'changeTimeFormat()');
   addCheckbox(uiContainer, 'autoOptions', 'autoFestival', 'Automatically try to hold festivals');
-
+  addTriggerOptionMenu(uiContainer, 'autoOptions', 'timeDisplay', 'Format for time displays', [["default", "standard"], ["short", "short"], ["seconds", "seconds"]], '', 'changeTimeFormat()');
+  
   addHeading(uiContainer, 'Auto-trading')
   races = [["No one", ""]];
   gamePage.diplomacy.races.forEach(function (r) {
