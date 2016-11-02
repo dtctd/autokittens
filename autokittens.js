@@ -150,6 +150,9 @@ function rebuildOptionsUI() {
   addIndent(uiContainer);addOptionMenu(uiContainer, 'autoOptions.tradeOptions', 'tradePartnerAutumn', 'Trade with', races, ' in autumn');
   addCheckbox(uiContainer, 'autoOptions.tradeOptions', 'tradeWinter', 'Allow trading in winter');
   addIndent(uiContainer);addOptionMenu(uiContainer, 'autoOptions.tradeOptions', 'tradePartnerWinter', 'Trade with', races, ' in winter');
+  addCheckbox(uiContainer, 'autoOptions.tradeOptions', 'tradeLeviathans', 'Trade with the Leviathans when present');
+  
+  
 
   addHeading(uiContainer, 'Auto-crafting');
   addTriggerButton(uiContainer, 'Calculate craft amounts', 'calculateCraftAmounts()');
@@ -337,7 +340,8 @@ var defaultOptions = {
     tradeAutumn: false,
     tradePartnerAutumn: "",
     tradeWinter: false,
-    tradePartnerWinter: ""
+    tradePartnerWinter: "",
+	tradeLeviathans: false
   },
   showTimerDisplays: true
 }
@@ -658,14 +662,15 @@ autoTrade = function () {
   if (autoOptions.tradeOptions.suppressTradeLog) {
     gamePage.msg = function() {};
   }
-
+  
   if (autoOptions.tradeOptions['trade' + season]) {
     var origTab = gamePage.ui.activeTabId;
     if (gamePage.diplomacyTab.racePanels.length == 0) {
       gamePage.ui.activeTabId = 'Trade'; gamePage.render();
     }
     for (var i = 0; i < gamePage.diplomacyTab.racePanels.length; i++) {
-      if (gamePage.diplomacyTab.racePanels[i].race.name == race.name) {
+      if ((gamePage.diplomacyTab.racePanels[i].race.name == race.name) || ((gamePage.diplomacyTab.racePanels[i].race.name == "leviathans") && (autoOptions.tradeOptions.tradeLeviathans == 1))) {
+
         if (!gamePage.diplomacyTab.racePanels[i].tradeBtn.enabled) {
           gamePage.ui.activeTabId = 'Trade'; gamePage.render();
         }
