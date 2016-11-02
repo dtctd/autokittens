@@ -1,3 +1,5 @@
+var origTab = gamePage.ui.activeTabId;
+
 function buildUI() {
   var tableContainer = document.createElement('div');
   tableContainer.id = 'timerTableContainer';
@@ -529,14 +531,14 @@ autoHunt = function () {
     if (autoOptions.huntOptions.craftCompendium && gamePage.workshop.getCraft('compedium').unlocked)  { gamePage.craftAll('compedium');  }
     if (autoOptions.huntOptions.craftBlueprint && gamePage.workshop.getCraft('blueprint').unlocked)  { gamePage.craftAll('blueprint');  }
     if (autoOptions.huntOptions.singleHunts) {
-      var origTab = gamePage.activeTabId;
+      var origTab = gamePage.ui.activeTabId;
       if (!(gamePage.villageTab.huntBtn && gamePage.villageTab.huntBtn.onClick))
       {
-        gamePage.activeTabId = gamePage.villageTab.tabId; gamePage.render();
+        gamePage.ui.activeTabId = gamePage.villageTab.tabId; gamePage.render();
       }
       gamePage.villageTab.huntBtn.onClick();
-      if (origTab != gamePage.activeTabId) {
-        gamePage.activeTabId = origTab; gamePage.render();
+      if (origTab != gamePage.ui.activeTabId) {
+        gamePage.ui.activeTabId = origTab; gamePage.render();
       }
     } else {
       gamePage.village.huntAll();
@@ -660,14 +662,14 @@ autoTrade = function () {
   }
 
   if (autoOptions.tradeOptions['trade' + season]) {
-    var origTab = gamePage.activeTabId;
+    var origTab = gamePage.ui.activeTabId;
     if (gamePage.diplomacyTab.racePanels.length == 0) {
-      gamePage.activeTabId = 'Trade'; gamePage.render();
+      gamePage.ui.activeTabId = 'Trade'; gamePage.render();
     }
     for (var i = 0; i < gamePage.diplomacyTab.racePanels.length; i++) {
       if (gamePage.diplomacyTab.racePanels[i].race.name == race.name) {
         if (!gamePage.diplomacyTab.racePanels[i].tradeBtn.enabled) {
-          gamePage.activeTabId = 'Trade'; gamePage.render();
+          gamePage.ui.activeTabId = 'Trade'; gamePage.render();
         }
         if (autoOptions.tradeOptions.tradeCount <= 1)
           gamePage.diplomacyTab.racePanels[i].tradeBtn.onClick();
@@ -676,8 +678,8 @@ autoTrade = function () {
         break;
       }
     }
-    if (gamePage.activeTabId != origTab) {
-      gamePage.activeTabId = origTab; gamePage.render();
+    if (gamePage.ui.activeTabId != origTab) {
+      gamePage.ui.activeTabId = origTab; gamePage.render();
     }
   }
   if (autoOptions.tradeOptions.suppressTradeLog) {
@@ -689,16 +691,16 @@ autoFestival = function () {
   if (gamePage.calendar.festivalDays || !autoOptions.autoFestival || !gamePage.science.get('drama').researched)
     return;
 
-  var origTab = gamePage.activeTabId;
+  var origTab = gamePage.ui.activeTabId;
   if (!(gamePage.villageTab.festivalBtn && gamePage.villageTab.festivalBtn.onClick && gamePage.villageTab.festivalBtn.visible))
   {
-    gamePage.activeTabId = gamePage.villageTab.tabId; gamePage.render();
+    gamePage.ui.activeTabId = gamePage.villageTab.tabId; gamePage.render();
   }
   if (gamePage.villageTab.festivalBtn.hasResources()) {
     gamePage.villageTab.festivalBtn.onClick();
   }
-  if (origTab != gamePage.activeTabId) {
-    gamePage.activeTabId = origTab; gamePage.render();
+  if (origTab != gamePage.ui.activeTabId) {
+    gamePage.ui.activeTabId = origTab; gamePage.render();
   }
 }
 
