@@ -63,7 +63,7 @@ function addNamedCheckbox(container, prefix, optionName, controlName, caption) {
 }
 
 function addTriggerNamedCheckbox(container, prefix, optionName, controlName, caption, trigger) {
-  container.append('<label><input id="autoKittens_'+controlName+'" onclick="'+prefix+'.'+optionName+' = $(\'#autoKittens_'+controlName+'\')[0].checked;saveAutoOptions();'+trigger+'" type="checkbox">'+caption+'</label><br>');
+  container.append('<label id="autoKittens_'+controlName+'_label" for="autoKittens_'+controlName+'">'+caption+'</label><input id="autoKittens_'+controlName+'" onclick="'+prefix+'.'+optionName+' = $(\'#autoKittens_'+controlName+'\')[0].checked;saveAutoOptions();'+trigger+';updateOptionsUI();" type="checkbox"/><br>');
 }
 
 function addHeading(container, title) {
@@ -386,6 +386,12 @@ function traverseObject(obj) {
       elms = $("#autoKittens_"+o);
       if (elms && elms[0]) {
         elms[0].checked = obj[o];
+        if(elms[0].checked == 1){
+          document.getElementById("autoKittens_"+o+"_label").style.color = 'green';
+        }
+        else {
+          document.getElementById("autoKittens_"+o+"_label").style.color = 'silver';
+        }
       }
     }
     else {
