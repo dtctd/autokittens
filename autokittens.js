@@ -161,6 +161,9 @@ function rebuildOptionsUI() {
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'woodAmount', 'Craft', 'wood at a time');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftBeam', 'Automatically convert wood to beams');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'beamAmount', 'Craft', 'beam(s) at a time');
+  addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftScaffold', 'Automatically convert beams to scaffolds');
+  addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'scaffoldAmount', 'Craft', 'scaffolds at a time');
+  addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'scaffoldRatio', 'Keep', ' scaffold to beam ratio')
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftSlab', 'Automatically convert minerals to slabs');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'slabAmount', 'Craft', 'slab(s) at a time');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftSteel', 'Automatically convert coal to steel');
@@ -169,6 +172,7 @@ function rebuildOptionsUI() {
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'gearAmount', 'Craft', 'gear at a time');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'gearSteelRatio', 'Keep', ' gear to steel ratio')
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftConcrete', 'Automatically convert steel to concrete');
+  addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'concreteAmount', 'Craft', 'concrete at a time');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'concreteSteelRatio', 'Keep', ' concrete to steel ratio');
   addCheckbox(uiContainer, 'autoOptions.craftOptions', 'craftPlate', 'Automatically convert iron to plates');
   addIndent(uiContainer);addInputField(uiContainer, 'autoOptions.craftOptions', 'plateAmount', 'Craft', 'plate(s) at a time');
@@ -273,6 +277,9 @@ var defaultOptions = {
     woodAmount: 10,
     craftBeam: true,
     beamAmount: 1,
+	craftScaffold: true,
+	scaffoldAmount: 1,
+	scaffoldRatio: 1,
     craftSlab: true,
     slabAmount: 1,
     craftSteel: true,
@@ -281,6 +288,7 @@ var defaultOptions = {
 	gearAmount: 1,
 	gearSteelRatio: 1,
 	craftConcrete: true,
+	concreteAmount: 1,
 	concreteSteelRatio: 1,
     craftPlate: true,
     plateAmount: 1,
@@ -304,7 +312,9 @@ var defaultOptions = {
     craftBlueprint: true,
     blueprintAmount: 1,
     minCompendiumAmount: 0,
-    blueprintPriority: false
+    blueprintPriority: false,
+	craftShip: true,
+	shipAmount: 1
   },
   furOptions: {
     parchmentMode: 0,
@@ -564,7 +574,7 @@ tryCraft = function(craftName, amount) {
 }
 
 calculateCraftAmounts = function() {
-  var resources = ["wood", "beam", "slab", "steel", "plate", "alloy", "gear", "concrate", "uranium", "eludium", "kerosene", "parchment", "manuscript", "blueprint", "compedium"]
+  var resources = ["wood", "beam", "scaffold", "slab", "steel", "plate", "alloy", "gear", "concrate", "eludium", "kerosene", "parchment", "manuscript", "blueprint", "compedium", "ship"]
   for (var i = 0; i < resources.length; i++) {
     var craft = gamePage.workshop.getCraft(resources[i]);
     var prices = craft.prices;
@@ -586,6 +596,7 @@ autoCraft = function () {
   var resources = [
     ["catnip",      "wood" , "craftWood", true],
     ["wood",        "beam" , "craftBeam", gamePage.science.get('construction').researched],
+	["beam",        "scaffold" , "craftScaffold", gamePage.science.get('construction').researched && (gamePage.resPool.get('beam').value > (gamePage.resPool.get('scaffold').value * autoOptions.craftOptions.scaffoldRatio))],
     ["minerals",    "slab" , "craftSlab", gamePage.science.get('construction').researched],
     ["coal",        "steel", "craftSteel", gamePage.science.get('construction').researched],
     ["iron",        "plate", "craftPlate", gamePage.science.get('construction').researched],
@@ -599,7 +610,8 @@ autoCraft = function () {
     ["culture", "manuscript", "craftManuscript", gamePage.science.get('construction').researched && (gamePage.resPool.get('parchment').value > autoOptions.craftOptions.minParchmentAmount + 25 * autoOptions.craftOptions.manuscriptAmount)],
     ["science", "blueprint", "craftBlueprint", gamePage.science.get('construction').researched && autoOptions.craftOptions.blueprintPriority && (gamePage.resPool.get('compedium').value > autoOptions.craftOptions.minCompendiumAmount + 25 * autoOptions.craftOptions.blueprintAmount)],
     ["science", "compedium", "craftCompendium", gamePage.science.get('construction').researched && (gamePage.resPool.get('manuscript').value > autoOptions.craftOptions.minManuscriptAmount + 50 * autoOptions.craftOptions.compediumAmount)],
-    ["science", "blueprint", "craftBlueprint", gamePage.science.get('construction').researched && !autoOptions.craftOptions.blueprintPriority && (gamePage.resPool.get('compedium').value > autoOptions.craftOptions.minCompendiumAmount + 25 * autoOptions.craftOptions.blueprintAmount)]
+    ["science", "blueprint", "craftBlueprint", gamePage.science.get('construction').researched && !autoOptions.craftOptions.blueprintPriority && (gamePage.resPool.get('compedium').value > autoOptions.craftOptions.minCompendiumAmount + 25 * autoOptions.craftOptions.blueprintAmount)],
+    ["starchart", "ship", "craftShip", gamePage.science.get('navigation').researched],
   ];
   for (var i = 0; i < resources.length; i++) {
     var curRes = gamePage.resPool.get(resources[i][0]);
@@ -608,9 +620,11 @@ autoCraft = function () {
       tryCraft(resources[i][1], autoOptions.craftOptions[resources[i][1]+'Amount']);
     }
 	if (resources[i][3] && autoOptions.craftOptions[resources[i][2]] && gamePage.workshop.getCraft(resources[i][1]).unlocked && resources[i][1] == "concrate") {
-      //tryCraft(resources[i][1], autoOptions.craftOptions[resources[i][1]+'Amount']);
-	  gamePage.craft("concrate", 1);
+	  gamePage.craft("concrate", autoOptions.craftOptions['concreteAmount']);
 	}
+	if (resources[i][3] && autoOptions.craftOptions[resources[i][2]] && gamePage.workshop.getCraft(resources[i][1]).unlocked && resources[i][1] == "scaffold") {
+	  gamePage.craft("scaffold", autoOptions.craftOptions['scaffoldAmount']);
+	}	
 	if (curRes.maxValue == 0)
       continue;
     if (resources[i][3] && autoOptions.craftOptions[resources[i][2]] && curRes.value / curRes.maxValue >= autoOptions.craftOptions.craftLimit && gamePage.workshop.getCraft(resources[i][1]).unlocked) {
