@@ -491,6 +491,7 @@ processAutoKittens = function() {
   autoFestival();
   fillTable();
   updateCalculators();
+  calculateCraftAmounts();
 }
 
 var gameTickFunc = gamePage.tick;
@@ -582,7 +583,6 @@ calculateCraftAmounts = function() {
 autoCraft = function () {
   if (!autoOptions.autoCraft)
     return;
-  calculateCraftAmounts();
   var resources = [
     ["catnip",      "wood" , "craftWood", true],
     ["wood",        "beam" , "craftBeam", gamePage.science.get('construction').researched],
