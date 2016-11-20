@@ -391,7 +391,7 @@ function updateOptionsUI() {
 function traverseObject(obj) {
   for (o in obj) {
     if (o === "displayOptions") {
-      handleDisplayOptions(obj[o])
+      //handleDisplayOptions(obj[o])
     }
     else if (typeof obj[o] === "object") {
       traverseObject(obj[o])
