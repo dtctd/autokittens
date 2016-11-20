@@ -581,7 +581,7 @@ calculateCraftAmounts = function() {
     var amount = 1;
     for (var j = 0; j < prices.length; j++) {
       var res = gamePage.resPool.get(prices[j].name);
-      var checkVal = Math.min(res.perTickCached, res.maxValue != 0 ? res.maxValue : res.perTickCachedI);
+      var checkVal = Math.min(res.perTickCached, res.maxValue != 0 ? res.maxValue : res.perTickCached);
       if (checkVal > prices[j].val) amount = Math.max(amount, Math.floor(checkVal/prices[j].val))
     }
     autoOptions.craftOptions[resources[i]+'Amount'] = amount
