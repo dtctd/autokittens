@@ -496,7 +496,7 @@ processAutoKittens = function() {
   starClick();
   autoHunt();
   autoCraft();
-  autoTrade();
+  //autoTrade();
   autoPray();
   autoFestival();
   fillTable();
