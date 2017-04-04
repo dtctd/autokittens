@@ -714,7 +714,7 @@ autoFestival = function () {
   {
     gamePage.ui.activeTabId = gamePage.villageTab.tabId; gamePage.render();
   }
-  if (gamePage.villageTab.festivalBtn.hasResources()) {
+  if (gamePage.villageTab.festivalBtn.model.enabled) {
     gamePage.villageTab.festivalBtn.onClick();
   }
   if (origTab != gamePage.ui.activeTabId) {
